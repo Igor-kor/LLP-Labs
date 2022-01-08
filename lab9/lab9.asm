@@ -5,10 +5,10 @@
 include \masm32\include\masm32rt.inc
 ; Сегмент данных
 .data
-array_length dd 5
-Char_Array db 'ABC', 17 dup(?)
-dst db "0123456789" , 17 dup(?)
-src db 5 dup("t")
+array_length dd 3; длина копируемого массива
+array_to_offset dd 5; заданное место вставки
+dst db "0123456789" , 17 dup(?);
+src db 3 dup("t"); массив для вставки
 .CODE
 ; передача по значению
 
@@ -27,17 +27,13 @@ rep movsb ; копирование
 proc3 endp
 
 main PROC
- ;call proc3
-; lea ESI, src ; адрес источника
-;lea EDI, [dst+3] ; адрес приемника
-;mov ECX, 3 ; длина копируемой строки
-;rep movsb ; копирование
 push array_length; длина строки
-push 4; позиия куда вставится
+push array_to_offset; позиия куда вставится
 push offset dst
 push offset src
 call proc3
 
+; выврд на экран
 mov ECX, 10
 mov eax, 0
 p1:
