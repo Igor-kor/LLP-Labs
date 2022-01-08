@@ -1,1 +1,53 @@
-.686.model flat, stdcalloption casemap :none ; case sensitive include c:\masm32\include\windows.inc include c:\masm32\include\kernel32.inc include c:\masm32\include\user32.inc includelib c:\masm32\lib\kernel32.lib includelib c:\masm32\lib\user32.lib; Сегмент данных.datax dd 10va dd 0vb dd 0vc dd 0; Сегмент кода; 19 Вычислить и вывести на экран; значения функции F.; -((2x-c)/(cx-a)) при x<0, b!=0; (x-a)/(x-c) при x>0, b == 0; -(x/c) + (-c)/(2x) в остальных случаях.codemain: mov CX, 10m1: mov AX, x mov BX, 0 cmp AX, BX jl case1 jg case2 jmp default1case1: mov AX, vb mov BX, 0 cmp AX, BX jne default1 jmp endcase; x<0, b!=0; -((2x-c)/(cx-a))case2: mov AX, vb mov BX, 0 cmp AX, BX je default1  jmp endcase; x>0, b == 0; (x-a)/(x-c)default1:; default; -(x/c) + (-c)/(2x)jmp endcaseendcase: dec x LOOP m1quit: mov eax, 0 invoke ExitProcess, eax end main
+.686
+.model flat,stdcall
+
+include \masm32\include\masm32rt.inc
+; Сегмент данных
+.data
+x dw 10
+va dw 0
+vb dw 0
+vc dw 0
+
+.CODE
+main PROC
+xor EAX, EAX
+xor ECX, ECX
+mov CX, 10
+m1:
+ mov AX, x
+ mov BX, 0
+ cmp AX, BX
+ jl case1
+ jg case2
+ jmp default1
+case1:
+ mov AX, vb
+ mov BX, 0
+ cmp AX, BX
+ jne default1
+ jmp endcase
+; x<0, b!=0
+; -((2x-c)/(cx-a))
+case2:
+ mov AX, vb
+ mov BX, 0
+ cmp AX, BX
+ je default1
+  jmp endcase
+; x>0, b == 0
+; (x-a)/(x-c)
+default1:
+; default
+; -(x/c) + (-c)/(2x)
+jmp endcase
+endcase:
+ dec x
+ LOOP m1
+
+
+
+    invoke ExitProcess, 0
+main ENDP
+
+END main

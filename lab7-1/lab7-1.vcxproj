@@ -18,14 +18,11 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <MASM Include="lab6.asm" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{064e72a6-e99a-4819-9a74-5d6d67e2edc8}</ProjectGuid>
-    <RootNamespace>lab6</RootNamespace>
+    <ProjectGuid>{7dc299bd-28a6-431f-852e-c871f12d7241}</ProjectGuid>
+    <RootNamespace>lab71</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -97,9 +94,6 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-    <MASM>
-      <IncludePaths>c:;c:\masm32\include;c:\masm32;%(IncludePaths)</IncludePaths>
-    </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -116,9 +110,6 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-    <MASM>
-      <IncludePaths>c:;c:\masm32\include;c:\masm32;%(IncludePaths)</IncludePaths>
-    </MASM>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
