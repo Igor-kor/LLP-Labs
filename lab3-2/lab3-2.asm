@@ -1,61 +1,49 @@
-; Шарангия Игорь 
-; номер по списку 19
-; вариант 9
-; f (x, y,z) = (-x)* y + z
-
-
-.586
+.686
 .model flat, stdcall
 option casemap :none ; case sensitive
 ; Раздел подключения библиотек
- include c:\masm32\include\windows.inc
- include c:\masm32\include\kernel32.inc
- include c:\masm32\include\user32.inc
- includelib c:\masm32\lib\kernel32.lib
- includelib c:\masm32\lib\user32.lib
-; Сегмент данных
+include \masm32\include\windows.inc
+include \masm32\include\kernel32.inc
+include \masm32\include\user32.inc
+include \masm32\include\masm32.inc
+include \masm32\macros\macros.asm
+includelib \masm32\lib\masm32.lib
+includelib \masm32\lib\kernel32.lib
+includelib \masm32\lib\user32.lib
+;Сегмент данных
 .data
-x dd 10
-y dd 3
-z dd ?
+X dq 123456789ABCDEF0h
+Y dq 123456789ABCDEF0h
+Z dq ?
 ; Сегмент кода
 .code
-main:
- ; Вычисление z = -1*(x**2 + xy -2)/((y + 1)**3)
- ; Вычисляем x**2
- mov EBX, [x] ; x -> EBX ( EBX = 10 = 0Ah )
- mov EAX, EBX ; x -> EAX ( EAX = 10 = 0Ah )
- mul EAX ; EAX = x**2 ( EAX = 100 = 64h )
- ; Сохраним промежуточные результаты в ECX
- mov ECX, EAX ; x**2 -> ECX ( ECX = 100 = 64h )
- ; Вычисляем x*y
- mov EAX, EBX ; x (уже хранимый в EBX) -> EAX ( EAX = 10 = 0Ah )
- mov EBX, [y] ; y -> EBX ( EBX = 3 = 03h )
- mul EBX ; EAX = x*y ( EAX = 30 = 1Eh )
- ; Вычитаем 2 из полученного произведения
- sub EAX, 2 ; EAX = x*x - 2 ( EAX = 28 = 1Ch )
- ; Добавляем x**2 к результату для получения числителя дроби
- add EAX, ECX ; EAX = (x*y - 2) + x**2 ( EAX = 128 = 80h )
- ; Сохраним числитель в ECX
- mov ECX, EAX ; (x*y - 2) + x^2 -> ECX ( ECX = 128 = 80h )
- ; Вычисляем знаменатель дроби
- inc EBX ; EBX = y + 1 ( EBX = 4 = 04h )
- mov EAX, EBX ; (y+1) -> EAX ( EAX = 4 = 04h )
- mul EAX ; EAX = (y+1)**2 ( EAX = 16 = 10h )
- mul EBX ; EAX = (y+1)**2 * (y+1) ( EAX = 64 = 40h )
- ; Приступаем к делению. Поместим знаменатель в EBX
- mov EBX, EAX ; (y+1)**3 -> EBX ( EBX = 64 = 40h )
- ; Поместим числитель в EAX
- mov EAX, ECX ; (x*y - 2) + x**2 -> EAX ( EAX = 128 = 80h )
- ; Обнулим старшую часть делимого (см. работу команды деления)
- mov EDX, 0 ; 0 -> EDX ( EDX = 0 = 00h )
- div EBX ; EAX = EAX / EBX ( EAX = 2 = 02h )
- ; Изменяем знак числа
- neg EAX ; -EAX ( EAX = -2 = FFFFFFFEh )
- ;
- mov z, EAX ; EAX -> Z
- ; Выход из программы
-quit:
- mov eax, 0
- invoke ExitProcess, eax
+main proc far
+; Вычисляем f (x, y, z) = -x* y + z
+mov        eax,dword ptr X
+mov        ebx,eax
+mul        dword ptr Y         ; перемножить младшие двойные слова
+mov        dword ptr Z,eax     ; сохранить младшее слово произведения
+mov        ecx,edx             ; сохранить старшее двойное слово
+mov        eax,ebx             ; младшее слово "X" в еах
+mul        dword ptr Y[4]      ; умножить младшее слово на старшее
+add        eax,ecx
+adc        edx,0               ; добавить перенос
+mov        ebx,eax             ; сохранить частичное произведение
+mov        ecx,edx
+mov        eax,dword ptr X[4]
+mul        dword ptr Y         ; умножить старшее слово на младшее
+add        eax,ebx             ; сложить с частичным произведением
+mov        dword ptr Z[4],eax
+adc        ecx,edx
+mov        eax,dword ptr X[4]
+mul        dword ptr Y[4]      ; умножить старшие слова
+add        eax,ecx             ; сложить с частичным произведением
+adc        edx,0               ; и добавить перенос
+;mov        word ptr Z[8],eax
+;mov        word ptr Z[12],edx
+ 
+
+invoke ExitProcess, EAX
+main endp
+; Конец программы
 end main
