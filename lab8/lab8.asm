@@ -1,93 +1,78 @@
 .686
 .model flat,stdcall
-
+; Проверяет число X на принадлежность диапазону [a, b] и возвращает 
+; 0, если принадлежит, и 1 в противном случае (в качестве параметра 
+; передавать числа X, a, b).
 include \masm32\include\masm32rt.inc
 ; Сегмент данных
 .data
-x dd 20
-va dd 3
-vb dd 1
-vc dd 3
+x dd 10
+a dd 5
+b dd 50
 
 .CODE
+; передача по значению
+proc1 proc
+cmp eax, ebx
+jnae proc3no; если меньше а
+cmp eax, ecx
+jnbe proc3no; если больше b
+ ret 1
+proc3no:
+ ret 0
+proc1 endp
+
+; передача по ссылке
+proc2 proc
+; извлекаем по ссылкам значения
+; PS: если нужно в дльнейшем использовать ссылки то надо их сохранить
+mov eax,[eax]
+mov ebx,[ebx]
+mov ecx,[ecx]
+
+cmp eax,ebx
+jnae proc3no; если меньше а
+cmp eax,ecx
+jnbe proc3no; если больше b
+ ret 1
+proc3no:
+ ret 0
+ ret
+proc2 endp
+
+; передача по стеку
+proc3 proc far
+push EBP
+ mov EBP, ESP
+ mov ebx, [EBP + 8] 
+ mov eax, [EBP + 6] 
+cmp eax, ebx
+jnae proc3no; если меньше а
+ mov eax, [EBP + 4] 
+cmp eax, ebx
+jnbe proc3no; если больше b
+ pop EBP
+ ret 1
+proc3no:
+ pop EBP
+ ret 0
+proc3 endp
+
 main PROC
-xor EAX, EAX
-xor ECX, ECX
-mov ECX, 10
-m1:
- mov EAX, x
- mov EBX, 0
- cmp EAX, EBX
- jl case1
- jg case2
- jmp default1
-case1:
- mov EAX, vb
- mov EBX, 0
- cmp EAX, EBX
- jne default1
- mov eax, x
- add eax, eax;2x
- sub eax, vc
- push eax
+ mov eax,dword ptr x
+ mov ebx,dword ptr a
+ mov ecx,dword ptr b
+ call proc1
 
- mov eax, x
- mul vc
- sub eax, va
- mov ebx, eax
- pop eax
- mov EDX, 0 ;
- div ebx
- neg eax
- push ecx
- printf ("x = %d, f = %d\n", x, eax);
- pop ecx
- jmp endcase
-; x<0, b!=0
-; -((2x-c)/(cx-a))
-case2:
- mov EAX, vb
- mov EBX, 0
- cmp EAX, EBX
- je default1
- mov eax, x
- sub eax, va
- mov ebx, x
- sub ebx, vc
- mov EDX, 0 ;
- div ebx
+ mov eax,offset x
+ mov ebx,offset a
+ mov ecx,offset b
+ call proc2
 
- push ecx
- printf ("x = %d, f = %d\n", x, eax);
- pop ecx
-  jmp endcase
-; x>0, b == 0
-; (x-a)/(x-c)
-default1:
-mov eax, vc
-neg eax
-mov ebx, x
-add ebx, ebx
-div ebx
-pop eax
-mov eax, x
-div vc
-neg eax
-pop ebx
-add eax, ebx
-
- push ecx
- printf ("x = %d, f = %d\n", x, eax);
- pop ecx
-; default
-; -(x/c) + (-c)/(2x)
-jmp endcase
-endcase:
- dec x
- dec ecx
- jnz m1
-
-
+ push x
+ push a
+ push b
+ call proc3
 
     invoke ExitProcess, 0
 main ENDP
